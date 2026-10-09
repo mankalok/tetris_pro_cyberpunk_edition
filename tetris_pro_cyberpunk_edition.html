@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tetris Pro Mobile & Desktop</title>
+    <title>Tetris Pro Mobile Layout</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -36,7 +36,7 @@
         .neon-text-pink { text-shadow: 0 0 8px rgba(255, 0, 127, 0.8); }
 
         .touch-btn {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.9);
             border: 1.5px solid rgba(0, 243, 255, 0.4);
             backdrop-filter: blur(8px);
             transition: transform 0.05s ease, background-color 0.05s ease, border-color 0.05s ease;
@@ -52,56 +52,56 @@
         canvas { image-rendering: pixelated; }
     </style>
 </head>
-<body class="flex flex-col justify-between items-center p-2 sm:p-4 select-none">
+<body class="flex flex-col justify-between items-center p-1.5 sm:p-4 select-none h-full">
 
     <!-- Header -->
     <header class="w-full max-w-lg flex justify-between items-center mb-1 shrink-0 px-1">
-        <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-cubes text-cyan-400 text-xl animate-pulse"></i>
-            <h1 class="text-xl sm:text-2xl font-extrabold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500 neon-text-cyan">
-                TETRIS<span class="text-[10px] text-cyan-300 ml-1 border border-cyan-500 px-1 rounded">PRO</span>
+        <div class="flex items-center space-x-1.5">
+            <i class="fa-solid fa-cubes text-cyan-400 text-lg sm:text-xl animate-pulse"></i>
+            <h1 class="text-lg sm:text-2xl font-extrabold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500 neon-text-cyan">
+                TETRIS<span class="text-[9px] text-cyan-300 ml-1 border border-cyan-500 px-1 rounded">PRO</span>
             </h1>
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-1.5">
             <button id="soundBtn" class="touch-btn p-2 rounded-xl text-cyan-400" title="音效切換">
-                <i class="fa-solid fa-volume-high text-sm sm:text-base"></i>
+                <i class="fa-solid fa-volume-high text-xs sm:text-base"></i>
             </button>
-            <button id="pauseBtn" class="touch-btn px-2.5 py-1.5 rounded-xl text-cyan-400 font-orbitron text-xs flex items-center gap-1">
+            <button id="pauseBtn" class="touch-btn px-2.5 py-1 rounded-xl text-cyan-400 font-orbitron text-xs flex items-center gap-1">
                 <i class="fa-solid fa-pause"></i> <span>暫停</span>
             </button>
-            <button id="restartBtn" class="touch-btn px-2.5 py-1.5 rounded-xl text-pink-500 font-orbitron text-xs flex items-center gap-1">
+            <button id="restartBtn" class="touch-btn px-2.5 py-1 rounded-xl text-pink-500 font-orbitron text-xs flex items-center gap-1">
                 <i class="fa-solid fa-rotate-right"></i> <span>重來</span>
             </button>
         </div>
     </header>
 
     <!-- Main Game Area -->
-    <main class="w-full max-w-lg flex-1 flex flex-col justify-center items-center gap-2 my-auto min-h-0">
+    <main class="w-full max-w-lg flex-1 flex flex-col justify-center items-center gap-1.5 my-auto min-h-0">
         
-        <!-- Score & Status Dashboard -->
-        <div class="w-full grid grid-cols-4 gap-1.5 shrink-0">
-            <div class="bg-slate-900/90 p-1.5 rounded-xl neon-border flex flex-col items-center justify-center">
-                <span class="text-[9px] font-orbitron text-cyan-400">HOLD 暫存</span>
-                <canvas id="holdCanvas" width="60" height="60" class="w-10 h-10 sm:w-12 sm:h-12 bg-slate-950 rounded-lg border border-slate-800"></canvas>
+        <!-- Top Status Bar (Compact Horizontal Grid) -->
+        <div class="w-full grid grid-cols-4 gap-1 shrink-0 px-1">
+            <div class="bg-slate-900/90 py-1 px-1.5 rounded-xl neon-border flex flex-col items-center justify-center">
+                <span class="text-[8px] sm:text-[10px] font-orbitron text-cyan-400">HOLD</span>
+                <canvas id="holdCanvas" width="50" height="50" class="w-7 h-7 sm:w-10 sm:h-10 bg-slate-950 rounded border border-slate-800"></canvas>
             </div>
-            <div class="bg-slate-900/90 p-1.5 rounded-xl neon-border flex flex-col items-center justify-center">
-                <span class="text-[9px] font-orbitron text-slate-400">SCORE 分數</span>
-                <span id="scoreVal" class="text-base sm:text-lg font-bold font-orbitron text-cyan-300 neon-text-cyan">0</span>
+            <div class="bg-slate-900/90 py-1 px-1 rounded-xl neon-border flex flex-col items-center justify-center">
+                <span class="text-[8px] sm:text-[10px] font-orbitron text-slate-400">SCORE</span>
+                <span id="scoreVal" class="text-sm sm:text-lg font-bold font-orbitron text-cyan-300 neon-text-cyan">0</span>
             </div>
-            <div class="bg-slate-900/90 p-1.5 rounded-xl neon-border flex flex-col items-center justify-center">
-                <span class="text-[9px] font-orbitron text-slate-400">LEVEL 等級</span>
-                <span id="levelVal" class="text-base sm:text-lg font-bold font-orbitron text-fuchsia-400">1</span>
+            <div class="bg-slate-900/90 py-1 px-1 rounded-xl neon-border flex flex-col items-center justify-center">
+                <span class="text-[8px] sm:text-[10px] font-orbitron text-slate-400">LEVEL</span>
+                <span id="levelVal" class="text-sm sm:text-lg font-bold font-orbitron text-fuchsia-400">1</span>
             </div>
-            <div class="bg-slate-900/90 p-1.5 rounded-xl neon-border flex flex-col items-center justify-center">
-                <span class="text-[9px] font-orbitron text-cyan-400">NEXT 下一個</span>
-                <canvas id="nextCanvas" width="60" height="60" class="w-10 h-10 sm:w-12 sm:h-12 bg-slate-950 rounded-lg border border-slate-800"></canvas>
+            <div class="bg-slate-900/90 py-1 px-1.5 rounded-xl neon-border flex flex-col items-center justify-center">
+                <span class="text-[8px] sm:text-[10px] font-orbitron text-cyan-400">NEXT</span>
+                <canvas id="nextCanvas" width="50" height="50" class="w-7 h-7 sm:w-10 sm:h-10 bg-slate-950 rounded border border-slate-800"></canvas>
             </div>
         </div>
 
-        <!-- Canvas Container -->
-        <div class="relative flex-1 flex items-center justify-center w-full min-h-0">
+        <!-- Canvas Container (Maximised for Mobile Screen) -->
+        <div class="relative flex-1 flex items-center justify-center w-full min-h-0 my-0.5">
             <div class="relative rounded-2xl p-1 bg-gradient-to-b from-cyan-500/30 via-fuchsia-500/20 to-pink-500/30 neon-border max-h-full aspect-[1/2]">
-                <canvas id="gameCanvas" width="300" height="600" class="bg-slate-950 rounded-xl h-full w-auto max-h-[52dvh] sm:max-h-[60vh] block cursor-crosshair touch-none"></canvas>
+                <canvas id="gameCanvas" width="300" height="600" class="bg-slate-950 rounded-xl h-full w-auto max-h-[58dvh] sm:max-h-[65vh] block cursor-crosshair touch-none"></canvas>
                 
                 <!-- Pause Overlay -->
                 <div id="pauseOverlay" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md rounded-xl flex flex-col items-center justify-center z-20">
@@ -123,42 +123,44 @@
         </div>
     </main>
 
-    <!-- Mobile Virtual Gamepad Controls -->
-    <footer class="w-full max-w-lg mt-1 mb-1 shrink-0 px-1">
-        <div class="grid grid-cols-5 gap-1.5 h-20 sm:h-24">
-            <!-- Left Controls Area -->
-            <button id="btnHold" class="touch-btn rounded-2xl text-amber-400 flex flex-col items-center justify-center col-span-1">
-                <i class="fa-solid fa-box-archive text-lg"></i>
-                <span class="text-[9px] font-orbitron mt-0.5">HOLD</span>
-            </button>
-            <button id="btnLeft" class="touch-btn rounded-2xl text-cyan-400 flex flex-col items-center justify-center col-span-1">
-                <i class="fa-solid fa-arrow-left text-xl"></i>
-                <span class="text-[9px] font-orbitron mt-0.5">左移</span>
-            </button>
+    <!-- Mobile Virtual Gamepad Controls (Custom Grouping Layout) -->
+    <footer class="w-full max-w-lg shrink-0 px-1 pb-1">
+        <div class="grid grid-cols-12 gap-1.5 h-28">
+            <!-- Left Hand Group: Left & Right Direction Buttons Stuck Together -->
+            <div class="col-span-5 grid grid-cols-2 gap-1">
+                <button id="btnLeft" class="touch-btn rounded-2xl text-cyan-400 flex flex-col items-center justify-center border-cyan-500/50 bg-cyan-950/20">
+                    <i class="fa-solid fa-arrow-left text-2xl"></i>
+                    <span class="text-[10px] font-orbitron font-bold mt-1">左移</span>
+                </button>
+                <button id="btnRight" class="touch-btn rounded-2xl text-cyan-400 flex flex-col items-center justify-center border-cyan-500/50 bg-cyan-950/20">
+                    <i class="fa-solid fa-arrow-right text-2xl"></i>
+                    <span class="text-[10px] font-orbitron font-bold mt-1">右移</span>
+                </button>
+            </div>
 
-            <!-- Center Rotate Button -->
-            <button id="btnRotate" class="touch-btn rounded-2xl text-fuchsia-400 flex flex-col items-center justify-center col-span-1 border-fuchsia-500/50 bg-fuchsia-950/30">
-                <i class="fa-solid fa-rotate-right text-2xl"></i>
-                <span class="text-[10px] font-orbitron font-bold mt-0.5 text-fuchsia-300">旋轉</span>
-            </button>
-
-            <!-- Right Controls Area -->
-            <button id="btnRight" class="touch-btn rounded-2xl text-cyan-400 flex flex-col items-center justify-center col-span-1">
-                <i class="fa-solid fa-arrow-right text-xl"></i>
-                <span class="text-[9px] font-orbitron mt-0.5">右移</span>
-            </button>
-            <button id="btnHardDrop" class="touch-btn rounded-2xl text-pink-500 flex flex-col items-center justify-center col-span-1 border-pink-500/50 bg-pink-950/30">
-                <i class="fa-solid fa-angles-down text-xl"></i>
-                <span class="text-[9px] font-orbitron mt-0.5">硬降</span>
-            </button>
-        </div>
-
-        <!-- Soft Drop Bar -->
-        <div class="mt-1.5">
-            <button id="btnSoftDrop" class="touch-btn w-full py-2 rounded-xl text-emerald-400 flex items-center justify-center gap-2 border-emerald-500/40">
-                <i class="fa-solid fa-arrow-down"></i>
-                <span class="text-xs font-orbitron font-bold">SOFT DROP (軟降/加速下落)</span>
-            </button>
+            <!-- Right Hand Group: Rotate, Soft Drop, Hard Drop, Hold -->
+            <div class="col-span-7 grid grid-cols-2 gap-1.5">
+                <div class="grid grid-rows-2 gap-1">
+                    <button id="btnRotate" class="touch-btn rounded-xl text-fuchsia-400 flex items-center justify-center gap-1.5 border-fuchsia-500/50 bg-fuchsia-950/30">
+                        <i class="fa-solid fa-rotate-right text-lg"></i>
+                        <span class="text-[11px] font-orbitron font-bold">旋轉</span>
+                    </button>
+                    <button id="btnHold" class="touch-btn rounded-xl text-amber-400 flex items-center justify-center gap-1.5 border-amber-500/40">
+                        <i class="fa-solid fa-box-archive text-base"></i>
+                        <span class="text-[10px] font-orbitron">HOLD</span>
+                    </button>
+                </div>
+                <div class="grid grid-rows-2 gap-1">
+                    <button id="btnSoftDrop" class="touch-btn rounded-xl text-emerald-400 flex items-center justify-center gap-1.5 border-emerald-500/40">
+                        <i class="fa-solid fa-arrow-down text-lg"></i>
+                        <span class="text-[10px] font-orbitron font-bold">軟降</span>
+                    </button>
+                    <button id="btnHardDrop" class="touch-btn rounded-xl text-pink-500 flex items-center justify-center gap-1.5 border-pink-500/50 bg-pink-950/30">
+                        <i class="fa-solid fa-angles-down text-lg"></i>
+                        <span class="text-[10px] font-orbitron font-bold">硬降</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -535,7 +537,7 @@
             targetCtx.clearRect(0, 0, targetCtx.canvas.width, targetCtx.canvas.height);
             if (!p) return;
             const shape = p.shape;
-            const miniBlockSize = 12;
+            const miniBlockSize = 10;
             const offsetX = (targetCtx.canvas.width - shape[0].length * miniBlockSize) / 2;
             const offsetY = (targetCtx.canvas.height - shape.length * miniBlockSize) / 2;
 
