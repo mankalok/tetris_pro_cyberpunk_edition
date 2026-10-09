@@ -64,7 +64,7 @@
             </h1>
         </div>
         <div class="flex items-center space-x-1.5">
-            <button id="soundBtn" class="touch-btn p-1.5 rounded-xl text-cyan-400" title="音效">
+            <button id="soundBtn" class="touch-btn p-1.5 rounded-xl text-cyan-400" title="音效與音樂切換">
                 <i class="fa-solid fa-volume-high text-xs"></i>
             </button>
             <button id="pauseBtn" class="touch-btn px-2 py-1 rounded-xl text-cyan-400 font-orbitron text-xs flex items-center gap-1">
@@ -129,10 +129,10 @@
         </div>
     </main>
 
-    <!-- Mobile Virtual Gamepad Controls (Left: Direction, Right: Actions) -->
+    <!-- Mobile Virtual Gamepad Controls -->
     <footer class="w-full max-w-md shrink-0 pt-2 pb-1 px-1">
         <div class="grid grid-cols-12 gap-1.5 h-28">
-            <!-- Left Hand Group: Left & Right Direction Buttons Stuck Together -->
+            <!-- Left Hand Group -->
             <div class="col-span-5 grid grid-cols-2 gap-1">
                 <button id="btnLeft" class="touch-btn rounded-2xl text-cyan-400 flex flex-col items-center justify-center border-cyan-500/50 bg-cyan-950/20">
                     <i class="fa-solid fa-arrow-left text-2xl"></i>
@@ -144,7 +144,7 @@
                 </button>
             </div>
 
-            <!-- Right Hand Group: Rotate, Soft Drop, Hard Drop, Hold -->
+            <!-- Right Hand Group -->
             <div class="col-span-7 grid grid-cols-2 gap-1.5">
                 <div class="grid grid-rows-2 gap-1">
                     <button id="btnRotate" class="touch-btn rounded-xl text-fuchsia-400 flex items-center justify-center gap-1.5 border-fuchsia-500/50 bg-fuchsia-950/30">
@@ -171,18 +171,106 @@
     </footer>
 
     <script>
-        /* Web Audio API Sound Synthesizer */
-        class SoundFX {
+        /* Procedural Music & Sound FX Engine */
+        class AudioEngine {
             constructor() {
                 this.ctx = null;
                 this.muted = false;
+                this.bgmTimer = null;
+                this.step = 0;
+                this.bpm = 120; // 初始 BPM 節奏速度
+                
+                // 100% 無版權原創 Cyberpunk 背景音樂音符矩陣 (A Minor / C Major)
+                this.bassSequence = [110, 110, 130.81, 110, 98, 98, 123.47, 98, 87.31, 87.31, 110, 87.31, 98, 98, 123.47, 110];
+                this.melodySequence = [220, 0, 261.63, 329.63, 0, 293.66, 0, 261.63, 174.61, 0, 220, 261.63, 0, 246.94, 0, 220];
             }
 
             init() {
                 if (!this.ctx) {
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (AudioContext) this.ctx = new AudioContext();
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                        this.startBGM();
+                    }
+                } else if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
                 }
+            }
+
+            setSpeedByLevel(lvl) {
+                // 音樂節奏隨等級提升（BPM 從 120 提升至最高 210）
+                this.bpm = Math.min(210, 120 + (lvl - 1) * 8);
+                if (this.bgmTimer) {
+                    clearInterval(this.bgmTimer);
+                    this.startBGM();
+                }
+            }
+
+            startBGM() {
+                if (this.bgmTimer) clearInterval(this.bgmTimer);
+                const interval = (60 / this.bpm) * 250; // 每 16 分音符的時間间隔
+
+                this.bgmTimer = setInterval(() => {
+                    if (this.muted || isPaused || gameOver || !this.ctx) return;
+
+                    const now = this.ctx.currentTime;
+
+                    // 1. Bass Synthesis (低重音 Bassline)
+                    const bassFreq = this.bassSequence[this.step % this.bassSequence.length];
+                    if (bassFreq > 0) {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(bassFreq / 2, now);
+                        
+                        gain.gain.setValueAtTime(0.04, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                        
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.12);
+                    }
+
+                    // 2. Melody Lead Synthesis (旋律音符)
+                    const melFreq = this.melodySequence[this.step % this.melodySequence.length];
+                    if (melFreq > 0 && this.step % 2 === 0) {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(melFreq, now);
+
+                        gain.gain.setValueAtTime(0.02, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.18);
+                    }
+
+                    // 3. Hi-Hat Rhythm (電子鼓節奏)
+                    if (this.step % 4 === 2) {
+                        const bufferSize = this.ctx.sampleRate * 0.03;
+                        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                        const data = buffer.getChannelData(0);
+                        for (let i = 0; i < bufferSize; i++) {
+                            data[i] = Math.random() * 2 - 1;
+                        }
+                        const noise = this.ctx.createBufferSource();
+                        noise.buffer = buffer;
+
+                        const gain = this.ctx.createGain();
+                        gain.gain.setValueAtTime(0.015, now);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+
+                        noise.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        noise.start(now);
+                    }
+
+                    this.step++;
+                }, interval);
             }
 
             playMove() {
@@ -263,7 +351,7 @@
             }
         }
 
-        const audio = new SoundFX();
+        const audio = new AudioEngine();
 
         /* Tetris Core Engine */
         const COLS = 10;
@@ -478,7 +566,13 @@
                 const lineScores = [0, 100, 300, 500, 800];
                 score += lineScores[linesCleared] * level;
                 lines += linesCleared;
-                level = Math.floor(lines / 10) + 1;
+                
+                const newLevel = Math.floor(lines / 10) + 1;
+                if (newLevel !== level) {
+                    level = newLevel;
+                    audio.setSpeedByLevel(level); // 自動跟隨等級提升音樂 BPM 節奏！
+                }
+
                 dropInterval = Math.max(100, 1000 - (level - 1) * 85);
                 updateScoreUI();
             }
@@ -630,7 +724,6 @@
             btn.addEventListener('touchend', stop, { passive: false });
             btn.addEventListener('touchcancel', stop, { passive: false });
 
-            // Fallback for Mouse Click on Desktop
             btn.addEventListener('mousedown', start);
             btn.addEventListener('mouseup', stop);
             btn.addEventListener('mouseleave', stop);
@@ -643,9 +736,9 @@
         bindTouchBtn('btnHardDrop', () => playerHardDrop(), false);
         bindTouchBtn('btnHold', () => holdCurrentPiece(), false);
 
-        // Tap Game Board Canvas to Rotate
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            audio.init();
             playerRotate();
         }, { passive: false });
 
@@ -670,12 +763,16 @@
             document.getElementById('pauseOverlay').classList.toggle('hidden', !isPaused);
         }
 
-        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            audio.init();
+            togglePause();
+        });
         document.getElementById('resumeBtn').addEventListener('click', togglePause);
         document.getElementById('restartBtn').addEventListener('click', resetGame);
         document.getElementById('restartGameBtn').addEventListener('click', resetGame);
 
         document.getElementById('soundBtn').addEventListener('click', () => {
+            audio.init();
             audio.muted = !audio.muted;
             const icon = document.getElementById('soundBtn').querySelector('i');
             icon.className = audio.muted ? 'fa-solid fa-volume-xmark text-pink-500' : 'fa-solid fa-volume-high text-cyan-400';
@@ -697,10 +794,10 @@
             
             drawMiniCanvas(holdCtx, null);
             updateScoreUI();
+            audio.setSpeedByLevel(1);
             spawnPiece();
         }
 
-        // Start Game Engine
         resetGame();
         update();
     </script>
